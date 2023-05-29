@@ -1,8 +1,31 @@
-
+import 'package:bts_emprunt/dataBase.dart';
+import 'package:bts_emprunt/object/emprunteur.dart';
+import 'package:bts_emprunt/object/emprunts.dart';
+import 'package:bts_emprunt/object/livre.dart';
+import 'package:bts_emprunt/page/actifs/actif.dart';
+import 'package:bts_emprunt/page/actifs/dataTable.dart';
+import 'package:bts_emprunt/page/emprunteur/emprunteur.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+
+Emprunteur? selectedEmprunteur = null;
+LivreData? selectedLivre = null;
+late Future<List<Emprunteur>> taskList;
+late Future<List<LivreData>> taskList2;
+List<Emprunteur> emprunteurs = [];
+List<LivreData> livres = [];
+DateTime currentDate = DateTime.now();
+
+LoadData() async {
+  taskList = dataBase.instance.emprunteur("");
+  taskList2 = dataBase.instance.availLivre();
+  emprunteurs = await taskList;
+  livres = await taskList2;
+}
 
 class myForm extends StatefulWidget {
-  const myForm({super.key});
+  final actif act;
+  const myForm(this.act);
   @override
   State<myForm> createState() => _myFormState();
 
@@ -36,11 +59,7 @@ class _myFormState extends State<myForm>  {
                   padding: EdgeInsets.fromLTRB(5, 20, 15, 0),
                   child: Container(
                     width: 200,
-                    child: TextField(
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20))
-                      ),
-                    ),
+                    child: dropDownEmprunteur(),
                   ),
                 )
               ],
@@ -52,9 +71,7 @@ class _myFormState extends State<myForm>  {
                   padding: EdgeInsets.fromLTRB(5, 20, 15, 0),
                   child: Container(
                     width: 200,
-                    child:TextField(
-                      decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(20))),
-                    ),
+                    child: dropDownLivre(),
                   ),
                 )
               ],
@@ -63,7 +80,11 @@ class _myFormState extends State<myForm>  {
             Padding(
                 padding: EdgeInsets.fromLTRB(5, 40, 15, 0),
                 child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      dataBase.instance.insertEmprunt(Emprunt(await dataBase.instance.empruntLastIndex()+1, selectedEmprunteur!.id, selectedLivre!.id, DateTime.now().toIso8601String(),currentDate.toIso8601String(), "", "", ""));
+                      dataBase.instance.updateLivre(LivreData(selectedLivre!.titre, selectedLivre!.id, selectedLivre!.etat, "Hors Stock"));
+                      widget.act.refresh();
+                    },
                     style: ButtonStyle(
                       minimumSize: MaterialStateProperty.all(Size(120, 70)),
                     ),
@@ -84,7 +105,6 @@ class myDatePicker extends StatefulWidget {
 }
 
 class _myDatePickerState extends State<myDatePicker> {
-  DateTime currentDate = DateTime.now();
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
@@ -116,6 +136,102 @@ class _myDatePickerState extends State<myDatePicker> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class dropDownEmprunteur extends StatefulWidget {
+  const dropDownEmprunteur({super.key});
+
+  @override
+  State<dropDownEmprunteur> createState() => _dropDownEmprunteurState();
+}
+
+class _dropDownEmprunteurState extends State<dropDownEmprunteur> {
+  var items;
+  @override
+  void initState() {
+    super.initState();
+    LoadData();
+    items = emprunteurs.map((item) {
+      return DropdownMenuItem(
+        value: item,
+        child: Text("${item.prenom} ${item.nom}"),
+      );
+    }).toList();
+    selectedEmprunteur = Emprunteur("","", 0, "");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+        width: 300,
+        child:
+        Padding(
+          padding: EdgeInsets.all(0),
+          child: DropdownButtonFormField(
+            decoration: InputDecoration(
+              enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.blue, width: 2),
+                  borderRadius: BorderRadius.circular(20)
+              ),
+            ),
+            onChanged: (Emprunteur? newValue) {
+              setState(() {
+                selectedEmprunteur = newValue;
+              });
+            },
+            items: items,
+          ),
+        )
+    );
+  }
+}
+
+class dropDownLivre extends StatefulWidget {
+  const dropDownLivre({super.key});
+
+  @override
+  State<dropDownLivre> createState() => _dropDownLivreState();
+}
+
+class _dropDownLivreState extends State<dropDownLivre> {
+  var items;
+  @override
+  void initState() {
+    super.initState();
+    LoadData();
+    items = livres.map((item) {
+      return DropdownMenuItem<LivreData>(
+        value: item,
+        child: Text(item.titre),
+      );
+    }).toList();
+    selectedLivre = LivreData("", 0, "", "");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+        width: 350,
+        child:
+        Padding(
+          padding: EdgeInsets.all(0),
+          child: DropdownButtonFormField(
+            decoration: InputDecoration(
+              enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.blue, width: 2),
+                  borderRadius: BorderRadius.circular(20)
+              ),
+            ),
+            onChanged: (LivreData? newValue) {
+              setState(() {
+                selectedLivre = newValue;
+              });
+            },
+            items: items,
+          ),
+        )
     );
   }
 }

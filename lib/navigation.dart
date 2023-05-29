@@ -12,7 +12,7 @@ class NavRailExample extends StatefulWidget {
 }
 
 class _NavRailExampleState extends State<NavRailExample> {
-  int selectedIndex = 2;
+  int selectedIndex = 0;
   NavigationRailLabelType labelType = NavigationRailLabelType.all;
   bool showLeading = false;
   bool showTrailing = false;

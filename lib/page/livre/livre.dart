@@ -4,18 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:bts_emprunt/page/livre/myForm.dart';
 
 
+late dataTable datatable;
 class Livre extends StatefulWidget {
   const Livre({super.key});
-
   @override
   State<Livre> createState() => _Livre();
+
+  void refresh() {
+    datatable.refresh();
+  }
 }
 
 class _Livre extends State<Livre> {
   @override
   Widget build(BuildContext context) {
+    datatable = dataTable();
     String? selectedValue = null;
-    dataTable datatable = dataTable();
     return Scaffold(
       backgroundColor: Color.fromRGBO(33, 149, 242, 0.1),
         body: Padding(
@@ -38,11 +42,10 @@ class _Livre extends State<Livre> {
                   ),
                   Padding(
                     padding: EdgeInsets.all(10),
-                    child: const myForm(),
+                    child: myForm(this.widget),
                   )
                 ]),
               ),
-              ElevatedButton(onPressed: () {datatable.loadData()}, child: Text("test")),
               Padding(
                   padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
                   child: Stack(

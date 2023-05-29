@@ -1,8 +1,10 @@
 import 'package:bts_emprunt/dataBase.dart';
 import 'package:bts_emprunt/object/livre.dart';
+import 'package:bts_emprunt/page/livre/livre.dart';
 import 'package:flutter/material.dart';
 late DateTime currentDate;
 String? selectedValue = null;
+String? selectedAuteur = null;
 class myDatePicker extends StatefulWidget {
   const myDatePicker({super.key});
 
@@ -106,7 +108,8 @@ class _dropDownEtatState extends State<dropDownEtat> {
 }
 
 class myForm extends StatefulWidget {
-  const myForm({super.key});
+  final Livre livre;
+  const myForm(this.livre);
 
   @override
   State<myForm> createState() => _myFormState();
@@ -140,16 +143,15 @@ class _myFormState extends State<myForm> {
                 ),
               ),
             ]),
-
         dropDownEtat(),
         myDatePicker(),
         Padding(
             padding: EdgeInsets.fromLTRB(5, 40, 15, 0),
             child: ElevatedButton(
                 onPressed: () async {
-                  dataBase.instance.insertLivre(Livre(titreController.text, await dataBase.instance.livreLastIndex()+1, selectedValue.toString(), "En Stock"));
+                  dataBase.instance.insertLivre(LivreData(titreController.text, await dataBase.instance.livreLastIndex()+1, selectedValue.toString(), "En Stock"));
                   titreController.text = "";
-                  (context as Element).reassemble();
+                  widget.livre.refresh();
                 },
                 style: ButtonStyle(
                   minimumSize: MaterialStateProperty.all(Size(120, 70)),
@@ -158,5 +160,63 @@ class _myFormState extends State<myForm> {
         ),
       ],
     );
+  }
+}
+
+
+class dropDownAuteur extends StatefulWidget {
+  dropDownAuteur({super.key});
+
+
+
+  @override
+  State<dropDownAuteur> createState() => _dropDownAuteurState();
+}
+
+class _dropDownAuteurState extends State<dropDownAuteur> {
+  List<DropdownMenuItem<String>> menuItems = [
+    DropdownMenuItem(
+        child: Text("Occasion mauvais étât"), value: "Occasion mauvais étât"),
+    DropdownMenuItem(
+        child: Text("Occasion bon étât"), value: "Occasion bon étât"),
+    DropdownMenuItem(child: Text("Neuf"), value: "Neuf"),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        width: 250,
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("Etat:"),
+              Padding(
+                padding: EdgeInsets.fromLTRB(5, 20, 15, 0),
+                child: DropdownButtonFormField(
+                    decoration: InputDecoration(
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue, width: 2),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue, width: 2),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                    validator: (value) =>
+                    value == null ? "Renseigner l'étât du livre" : null,
+                    dropdownColor: Colors.white,
+                    value: selectedAuteur,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedAuteur = newValue!;
+                      });
+                    },
+                    items: menuItems),
+              )
+            ]));
   }
 }

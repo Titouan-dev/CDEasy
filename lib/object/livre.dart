@@ -1,10 +1,10 @@
-class Livre {
+class LivreData {
   String titre;
   int id;
   String etat;
   String status;
 
-  Livre(this.titre, this.id, this.etat, this.status);
+  LivreData(this.titre, this.id, this.etat, this.status);
 
   Map<String, dynamic> toMap() {
     return {
@@ -15,7 +15,7 @@ class Livre {
     };
   }
 
-  factory Livre.fromMap(Map<String, dynamic> map) => Livre(
+  factory LivreData.fromMap(Map<String, dynamic> map) => LivreData(
     map["titre"],
     map["id"],
     map["etat"],

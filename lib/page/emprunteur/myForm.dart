@@ -1,18 +1,30 @@
 
 
+import 'package:bts_emprunt/dataBase.dart';
+import 'package:bts_emprunt/page/emprunteur/emprunteur.dart';
+import 'package:bts_emprunt/page/emprunteur/emprunteur.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:bts_emprunt/page/emprunteur/dataTable.dart';
+
+import '../../object/emprunteur.dart';
+import 'emprunteur.dart';
 
 
 
+String? selectedValue = null;
 
+late dataTable datatable;
 class myForm extends StatefulWidget {
-  const myForm({super.key});
-
+  final emprunteur emp;
+  const myForm(this.emp);
+  @override
   State<myForm> createState() => _myFormState();
 }
 
 class _myFormState extends State<myForm> {
+  final prenomController = TextEditingController();
+  final nomController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -39,7 +51,8 @@ class _myFormState extends State<myForm> {
                     padding: EdgeInsets.fromLTRB(5, 20, 15, 0),
                     child: Container(
                       width: 200,
-                      child: TextField(
+                      child: TextFormField(
+                        controller: prenomController,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
                               borderRadius:
@@ -58,7 +71,8 @@ class _myFormState extends State<myForm> {
                     padding: EdgeInsets.fromLTRB(5, 20, 15, 0),
                     child: Container(
                       width: 200,
-                      child: TextField(
+                      child: TextFormField(
+                        controller: nomController,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
                               borderRadius:
@@ -85,11 +99,16 @@ class _myFormState extends State<myForm> {
               Padding(
                 padding: EdgeInsets.fromLTRB(0, 45, 0, 0),
                 child: ElevatedButton(
-                  onPressed: () {},
                   child: Text("Ajouter"),
                   style: ButtonStyle(
                     minimumSize: MaterialStateProperty.all(Size(120, 70)),
                   ),
+                  onPressed: () async {
+                    dataBase.instance.insertEmprunteur(Emprunteur(prenomController.text, nomController.text, await dataBase.instance.emprunteurLastIndex()+1,selectedValue!));
+                    prenomController.text = "";
+                    nomController.text = "";
+                    widget.emp.refresh();
+                  },
                 ),
               ),
             ],
@@ -109,7 +128,6 @@ class dropDownStatus extends StatefulWidget {
 }
 
 class _dropDownStatusState extends State<dropDownStatus> {
-  String? selectedValue = null;
 
   List<DropdownMenuItem<String>> menuItems = [
     DropdownMenuItem(
